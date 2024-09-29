@@ -63,7 +63,7 @@ body {
     position: absolute;
     top: 50%; /* Plaats het in het midden van de verticale as */
     left: -20px; /* Zet de pijl aan de rechterkant buiten het wiel */
-    margin-top: 10px;
+    margin-top: 12px;
     transform: translateY(-50%); /* Zorg dat de pijl perfect gecentreerd is */
     z-index: 1; /* Zorg dat de pijl boven het wiel blijft */
 }

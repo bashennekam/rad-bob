@@ -2,6 +2,9 @@ const wheel = document.getElementById('wheel');
 const result = document.getElementById('result');
 const spinButton = document.getElementById('spinButton');
 
+let spinning = false;
+let spinInterval;
+
 // Voeg 16 opties toe aan het rad
 const optionsTruthDare = [
     'Truth', 'Dare', 'Truth', 'Dare',
@@ -21,6 +24,10 @@ const optionsFood = [
 
 const load = (options) => {
     wheel.innerHTML = '';
+    result.textContent = '';
+
+    clearInterval(spinInterval);
+    spinning = false;
     
     // Voeg de 16 segmenten toe aan het wiel
     for (let i = 0; i < options.length; i++) {
@@ -33,7 +40,6 @@ const load = (options) => {
 
 load(optionsTruthDare);
 
-let spinning = false;
 
 spinButton.addEventListener('click', function() {
     if (spinning) return;  // Voorkom meerdere klikken tijdens het draaien
@@ -45,7 +51,7 @@ spinButton.addEventListener('click', function() {
 
     result.textContent = '';
 
-    const spinInterval = setInterval(() => {
+    spinInterval = setInterval(() => {
         // Verplaats het eerste item naar beneden
         const firstSlice = wheel.firstElementChild;
         wheel.appendChild(firstSlice);  // Verplaats naar het einde van de lijst
