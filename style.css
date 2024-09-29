@@ -18,10 +18,12 @@ body {
 }
 
 .wheel-container {
-    width: 200px;
-    height: 500px;
+    width: 150px;
+    height: 390px;
     border: 10px solid #333;
+    border-radius: 12px;
     position: relative;
+    margin: 10px auto;
 }
 
 .wheel {
@@ -39,17 +41,15 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 24px;
+    font-size: 20px;
     font-weight: bold;
     color: white;
     border-bottom: 2px solid #333;
 }
-
-.slice:nth-child(even) {
+.slice.even {
     background-color: #ffcc00;
 }
-
-.slice:nth-child(odd) {
+.slice.odd {
     background-color: #ff6600;
 }
 
@@ -69,14 +69,19 @@ body {
 }
 
 button {
-    margin-top: 20px;
-    padding: 10px 20px;
+    margin-top: 10px;
+    width: 100px;
+    height: 100px;
     font-size: 16px;
+    border-radius: 50px;
     cursor: pointer;
+    font-weight: bold;
+    background:linear-gradient(to right bottom, #BF953F, #FCF6BA, #B38728);
 }
 
 #result {
     margin-top: 20px;
     font-size: 24px;
     font-weight: bold;
+    height: 50px;
 }
