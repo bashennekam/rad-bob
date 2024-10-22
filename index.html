@@ -1,35 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rad Mania</title>
-    <link rel="stylesheet" href="style.css">
-
-    <!-- icon -->
-    <link rel="icon" href="icon.webp" type="image/x-icon">
+    <title>Bob</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+        }
+        .item {
+            text-align: center;
+        }
+        img {
+            margin: 20px 20px 0px 20px;
+            width: 150px;
+            height: auto;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
+    <h1>Bob</h1>
     <div class="container">
-        <h1>Rad Mania</h1>
-
-        <div>
-            <div>
-                <a href="#" onclick="load(optionsTruthDare)">Truth & Dare</a>
-                <a href="#" onclick="load(optionsYesNo)">Yes & No</a>
-                <a href="#" onclick="load(optionsFood)">Food</a>
-            </div>
-            <div class="wheel-container">
-                <div class="wheel" id="wheel"></div>
-                <div class="pointer" id="pointer"></div> <!-- Pijl toegevoegd -->
-            </div>
-            <div>
-                <button id="spinButton">Spin</button>
-            </div>
+        <div class="item">
+            <a href="/flappy/">
+                <img src="/flappy/icon.webp" alt="Flappy Bird LEGO">
+            </a>
+            <p>Flappy Bird LEGO</p>
         </div>
-
-        <p id="result"></p>
+        <div class="item">
+            <a href="/radmania/">
+                <img src="/radmania/icon.webp" alt="Rad Mania">
+            </a>
+            <p>Rad Mania</p>
+        </div>
     </div>
-    <script src="script.js"></script>
 </body>
 </html>

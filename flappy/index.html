@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird Clone - LEGO Style</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #87CEEB;
+        }
+        canvas {
+            border: 2px solid #000;
+        }
+        #restartBtn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #ffcc00;
+            border: none;
+            cursor: pointer;
+        }
+        #gameOverText {
+            display: none;
+            font-size: 24px;
+            color: red;
+            margin-bottom: 10px;
+        }
+    </style>
+<meta name="description" content="Flappy Bird Clone - LEGO Style. Press any key to make the bird jump. Press 'R' to restart after game over.">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body, canvas, #gameOverText, p {
+            font-family: 'Press Start 2P', cursive;
+        }
+    </style>
+</head>
+<body>
+    <p>Controls: Press any key to make the bird jump. Press 'R' to restart after game over.</p>
+    <div id="gameOverText">Game Over!</div>
+    <canvas id="gameCanvas" width="320" height="480"></canvas>
+    
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const gameOverText = document.getElementById("gameOverText");
+
+        // Game variables
+        let birdY = canvas.height - 50;
+        let birdVelocity = 0;
+        const gravity = 0.5;
+        const jump = -10;
+
+        let pipes = [];
+        const pipeWidth = 50;
+        const pipeGap = 150;
+        const pipeSpeed = 2;
+        let score = 0;
+let highScore = getHighScoreFromCookie();
+let fireworks = [];
+        let gameRunning = true;
+
+        // Initialize pipes
+        pipes.push({
+    x: canvas.width,
+    y: Math.random() * (canvas.height - pipeGap - 40) + 20
+});
+
+        // Handle user input
+        document.addEventListener("keydown", (e) => {
+            if (e.key === 'r' && !gameRunning) {
+                restartGame();
+                return;
+            }
+            if (gameRunning) {
+                birdVelocity = jump;
+            }
+        });
+
+        // Draw bird
+        function drawBird(x, y) {
+            // Animate bird to make it look like it's flapping wings
+            const wingOffset = Math.sin(Date.now() / 200) * 3;
+
+            // Draw bird body as a circle
+            ctx.fillStyle = "#ffcc00";
+            ctx.beginPath();
+            ctx.arc(x, y + wingOffset, 10, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw bird eyes
+            ctx.fillStyle = "black";
+            ctx.beginPath();
+            ctx.arc(x - 5, y - 5 + wingOffset, 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + 5, y - 5 + wingOffset, 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw bird beak
+            ctx.fillStyle = "orange";
+            ctx.beginPath();
+            ctx.moveTo(x + 10, y);
+            ctx.lineTo(x + 20, y - 5);
+            ctx.lineTo(x + 20, y + 5);
+            ctx.closePath();
+            ctx.fill();
+
+            
+        }
+
+        // Draw LEGO block
+        function drawPipe(x, y, width, height, color) {
+            // Draw main pipe body
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, width, height);
+
+            // Draw pipe top cap for both top and bottom
+            ctx.fillStyle = "#006400"; // Darker green for the entire top cap
+            ctx.fillRect(x - 5, y - 20, width + 10, 20);
+            ctx.fillRect(x - 5, y + height, width + 10, 20);
+        
+        }
+
+        // Game loop
+        function gameLoop() {
+            updateFireworks();
+            if (!gameRunning) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBackground();
+
+            // Draw bird
+            if (!pipes[0].treeDrawn && score === 0) {
+                drawTree(20, canvas.height - 100);
+                if (pipes[0].x + pipeWidth < 50) {
+                    pipes[0].treeDrawn = true;
+                }
+            }
+            drawBird(50, birdY);
+
+            // Bird mechanics
+            birdVelocity += gravity;
+            birdY += birdVelocity;
+
+            // Draw pipes (as LEGO blocks)
+            for (let i = 0; i < pipes.length; i++) {
+                let pipe = pipes[i];
+                drawPipe(pipe.x, 0, pipeWidth, pipe.y, "#32CD32");
+                drawPipe(pipe.x, pipe.y + pipeGap, pipeWidth, canvas.height - pipe.y - pipeGap, "#32CD32");
+
+                pipe.x -= pipeSpeed;
+
+                // Check collision
+                if (
+                    (50 < pipe.x + pipeWidth && 50 + 20 > pipe.x &&
+                        (birdY < pipe.y || birdY + 20 > pipe.y + pipeGap)) ||
+                    birdY + 20 > canvas.height
+                ) {
+                    gameRunning = false;
+                    if (score > highScore) {
+                        highScore = score;
+                        setHighScoreCookie(highScore);
+                        setHighScoreCookie(highScore);
+                    }
+                    gameOverText.style.display = "block";
+                    return;
+                }
+
+                // Update score and remove off-screen pipes
+                if (pipe.x + pipeWidth < 50 && !pipe.passed) {
+                    score++;
+                    pipe.passed = true;
+                    createFirework(50, birdY);
+                    pipe.passed = true;
+                }
+
+                if (pipe.x + pipeWidth < 0) {
+                    pipes.shift();
+                    pipes.push({
+                        x: canvas.width,
+                        y: Math.random() * (canvas.height - pipeGap - 20) + 10
+                    });
+                }
+            }
+
+            // Draw score
+            ctx.fillStyle = "#000";
+            ctx.font = "20px 'Press Start 2P'";
+            ctx.fillText("Score: " + score, 10, 30);
+            ctx.fillText("High Score: " + (score > highScore ? score : highScore), 10, 60);
+
+            // Draw fireworks
+            drawFireworks();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function restartGame() {
+            birdY = canvas.height / 2;
+            birdVelocity = 0;
+            pipes = [];
+            pipes.push({
+                x: canvas.width,
+                y: Math.random() * (canvas.height - pipeGap - 20) + 10
+            });
+            score = 0;
+            gameRunning = true;
+            gameOverText.style.display = "none";
+            gameLoop();
+        }
+
+        gameLoop();
+    // Fireworks logic
+        function createFirework(x, y) {
+            const particles = [];
+            for (let i = 0; i < 20; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    angle: Math.random() * 2 * Math.PI,
+                    speed: Math.random() * 2 + 1,
+                    radius: Math.random() * 3 + 1,
+                    alpha: 1
+                });
+            }
+            fireworks.push(particles);
+        }
+
+        function updateFireworks() {
+            for (let i = 0; i < fireworks.length; i++) {
+                const particles = fireworks[i];
+                for (let j = 0; j < particles.length; j++) {
+                    const particle = particles[j];
+                    particle.x += Math.cos(particle.angle) * particle.speed;
+                    particle.y += Math.sin(particle.angle) * particle.speed;
+                    particle.alpha -= 0.02;
+                }
+            }
+            fireworks = fireworks.filter(particles => particles.some(p => p.alpha > 0));
+        }
+
+        function drawFireworks() {
+            for (let i = 0; i < fireworks.length; i++) {
+                const particles = fireworks[i];
+                for (let j = 0; j < particles.length; j++) {
+                    const particle = particles[j];
+                    if (particle.alpha > 0) {
+                        ctx.fillStyle = `rgba(255, 165, 0, ${particle.alpha})`;
+                        ctx.beginPath();
+                        ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+        }
+    // Draw background with clouds
+        function drawBackground() {
+            // Sky blue background
+            ctx.fillStyle = "#87CEEB";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw clouds
+            ctx.fillStyle = "#ffffff";
+            drawCloud(50, 50);
+            drawCloud(200, 80);
+            drawCloud(100, 150);
+        }
+
+        // Function to draw a cloud
+        function drawCloud(x, y) {
+            ctx.beginPath();
+            ctx.arc(x, y, 20, 0, Math.PI * 2);
+            ctx.arc(x + 30, y, 25, 0, Math.PI * 2);
+            ctx.arc(x + 60, y, 20, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    // Function to set high score in a cookie
+        function setHighScoreCookie(score) {
+            document.cookie = "highScore=" + score + "; path=/; max-age=31536000";
+        }
+
+        // Function to get high score from a cookie
+        function getHighScoreFromCookie() {
+            const value = "; " + document.cookie;
+            const parts = value.split("; highScore=");
+            if (parts.length === 2) {
+                return parseInt(parts.pop().split(";").shift()) || 0;
+            }
+            return 0;
+        }
+    // Function to draw a tree
+        function drawTree(x, y) {
+            // Draw tree trunk
+            ctx.fillStyle = "#8B4513";
+            ctx.fillRect(x, y, 20, 50);
+
+            // Draw tree leaves
+            ctx.fillStyle = "#228B22";
+            ctx.beginPath();
+            ctx.arc(x + 10, y - 10, 30, 0, Math.PI * 2);
+            ctx.arc(x - 10, y - 20, 30, 0, Math.PI * 2);
+            ctx.arc(x + 30, y - 20, 30, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    </script>
+</body>
+</html>
